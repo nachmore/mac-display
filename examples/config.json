@@ -1,0 +1,63 @@
+// Example mac-display config (JSON with comments; trailing commas are fine).
+// Installed config: /usr/local/etc/mac-display/config.json. `mac-display setup` writes one for you.
+//
+//   mac-display list              shows your displays, their current mode and every mode they offer
+//                                 (`list --json` prints values you can paste into "colorMode")
+//   mac-display status            shows what this config would do
+//   mac-display check-config      validates this file
+//
+// The daemon picks up edits within a few seconds (no restart needed). If an edit is
+// invalid, it logs the error and keeps using the previous version.
+{
+  // Display connect/disconnect, link retraining, mode changes and wake from sleep
+  // trigger a check immediately. This poll is only a safety net. 0 turns it off.
+  "pollIntervalSeconds": 15,
+
+  // "info" logs connects, switches, wake/sleep and problems. "debug" also logs every
+  // check and IOKit event (for troubleshooting). Read it with `mac-display logs -f`.
+  "logLevel": "info",
+  // The log rotates itself: a new file at logMaxKB, keeping logKeep old ones.
+  "logMaxKB": 1024,
+  "logKeep": 3,
+
+  // Rules are tried in order; the first enabled rule whose "match" fits a display wins.
+  // Displays that match no rule are left alone.
+  "displays": [
+    {
+      "label": "Samsung Odyssey G9",
+
+      // Every field given must match. Fields: name (EDID product name, globs like "LC49*"
+      // allowed), vendor (e.g. "SAM"), productID, serial, port (e.g. "dispext0").
+      // A field also accepts a list meaning "any of these".
+      "match": { "name": ["LC49G95T", "LC49D95T"] },
+
+      // Only the fields you give are enforced; the rest stay as close to the current mode
+      // as possible. Give all of them (or "id") for exactly one mode.
+      //   bitDepth:    6 | 8 | 10 | 12
+      //   encoding:    "rgb" | "ycbcr444" | "ycbcr422" | "ycbcr420"
+      //   range:       "full" | "limited"
+      //   hdr:         false (SDR) | true (any HDR)
+      //   eotf:        "sdr" | "pq" | "hlg"            (finer-grained than hdr)
+      //   colorimetry: "bt709" | "bt601" | "bt2020" | "srgb" | ...
+      //   id:          exact colour-element ID from `mac-display list`
+      // This is the mode verified to work on the G9: 8-bit SDR YCbCr 4:4:4 Limited, BT.709.
+      "colorMode": {
+        "bitDepth": 8,
+        "hdr": false,
+        "encoding": "ycbcr444",
+        "range": "limited",
+        "colorimetry": "bt709",
+      },
+
+      // Optional: also pin the link timing (resolution / refresh rate).
+      // "timing": { "resolution": "5120x1440", "refreshHz": 60 },
+    },
+
+    // Another display, for example:
+    // {
+    //   "label": "Office 4K",
+    //   "match": { "vendor": "DEL", "serial": "ABC1234" },
+    //   "colorMode": { "bitDepth": 10, "encoding": "rgb", "range": "full", "hdr": false },
+    // },
+  ],
+}

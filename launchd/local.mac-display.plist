@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>local.mac-display</string>
+
+    <!-- A LaunchDaemon (not a LaunchAgent) so it runs from boot, independent of any
+         user session: login window, lock screen, fast user switching. -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Library/PrivilegedHelperTools/local.mac-display</string>
+        <string>daemon</string>
+        <string>--config</string>
+        <string>/usr/local/etc/mac-display/config.json</string>
+        <!-- Self-rotating log; size limits are logMaxKB / logKeep in the config. -->
+        <string>--log-file</string>
+        <string>/Library/Logs/mac-display/mac-display.log</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <!-- No StandardOutPath: the daemon writes and rotates its own log (see above). -->
+</dict>
+</plist>

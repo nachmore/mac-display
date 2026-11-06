@@ -1,0 +1,24 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build -c release
+      - name: Smoke test
+        run: |
+          BIN="$(swift build -c release --show-bin-path)/mac-display"
+          "$BIN" version
+          "$BIN" check-config --config examples/config.json
+          "$BIN" default-config > /tmp/default.json
+          "$BIN" check-config --config /tmp/default.json
+          bash -n install.sh
+          bash -n uninstall.sh
+          plutil -lint launchd/local.mac-display.plist
